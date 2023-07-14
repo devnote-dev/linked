@@ -109,7 +109,7 @@ pub fn LinkedList(comptime T: type) type {
                 } else {
                     var node = head.index(self.len - 1).?;
                     node.head.?.tail = null;
-                    node.deinit(self.allocator);
+                    self.allocator.destroy(&node);
                 }
                 self.len -= 1;
             } else {
@@ -138,7 +138,6 @@ test "linked list" {
     try nums.append(4);
     try nums.prepend(2);
     try nums.append(6);
-
     try expect(nums.len == 3);
 
     var value = try nums.index(0);
@@ -150,4 +149,7 @@ test "linked list" {
     try expect(value.? == 4);
 
     try expect(nums.index(3) == error.IndexOutOfBounds);
+
+    try nums.pop();
+    try expect(nums.len == 2);
 }
