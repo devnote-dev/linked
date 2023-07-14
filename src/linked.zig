@@ -1,3 +1,5 @@
+const std = @import("std");
+
 fn Node(comptime T: type) type {
     return struct {
         const Self = @This();
@@ -7,7 +9,13 @@ fn Node(comptime T: type) type {
         tail: ?*Self,
 
         pub fn init(data: T) Self {
-            return Self{ .data = data, .head = null, .tail = null };
+            return .{ .data = data, .head = null, .tail = null };
+        }
+
+        pub fn deinit(self: *Self, allocator: *std.mem.Allocator) void {
+            if (self.head) |head| allocator.destroy(head);
+            if (self.tail) |tail| allocator.destroy(tail);
+            allocator.destroy(self);
         }
     };
 }
@@ -16,11 +24,19 @@ pub fn LinkedList(comptime T: type) type {
     return struct {
         const Self = @This();
 
+        allocator: *std.mem.Allocator,
         len: usize,
-        head: ?Node(T),
+        head: ?*Node(T),
 
-        pub fn init(data: T) Self {
-            return Self{ .len = 1, .head = Node(T).init(data) };
+        pub fn init(allocator: *std.mem.Allocator, data: T) !Self {
+            var node = try allocator.create(Node(T));
+            node.* = Node(T).init(data);
+
+            return .{ .allocator = allocator, .len = 1, .head = node };
+        }
+
+        pub fn deinit(self: *Self) void {
+            self.head.deinit(self.allocator);
         }
     };
 }
