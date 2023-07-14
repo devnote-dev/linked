@@ -13,8 +13,7 @@ fn Node(comptime T: type) type {
         }
 
         pub fn deinit(self: *Self, allocator: *std.mem.Allocator) void {
-            if (self.head) |head| allocator.destroy(head);
-            if (self.tail) |tail| allocator.destroy(tail);
+            if (self.tail) |tail| tail.deinit(allocator);
             allocator.destroy(self);
         }
 
