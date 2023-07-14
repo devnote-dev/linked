@@ -91,29 +91,30 @@ pub fn LinkedList(comptime T: type) type {
     };
 }
 
-// test "linked list" {
-//     const expect = @import("std").testing.expect;
+test "linked list" {
+    const expect = @import("std").testing.expect;
 
-//     try expect(LinkedList(i32) == LinkedList(i32));
+    try expect(LinkedList(i32) == LinkedList(i32));
 
-//     var nums = LinkedList(i32){
-//         .head = null,
-//         .len = 0,
-//     };
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    defer _ = gpa.deinit();
+    var allocator = gpa.allocator();
 
-//     nums.append(2);
-//     nums.append(4);
-//     nums.append(6);
+    var nums = try LinkedList(i32).init(&allocator, 2);
+    defer nums.deinit();
 
-//     try expect(nums.len == 3);
+    try nums.append(4);
+    try nums.append(6);
 
-//     var value = nums.index(0);
-//     try expect(value != null);
-//     try expect(value.? == 2);
+    try expect(nums.len == 3);
 
-//     value = nums.index(1);
-//     try expect(value != null);
-//     try expect(value.? == 4);
+    var value = try nums.index(0);
+    try expect(value != null);
+    try expect(value.? == 2);
 
-//     try expect(nums.index(3) == null);
-// }
+    value = try nums.index(1);
+    try expect(value != null);
+    try expect(value.? == 4);
+
+    try expect(nums.index(3) == error.IndexOutOfBounds);
+}
