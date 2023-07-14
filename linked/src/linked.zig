@@ -75,9 +75,7 @@ pub fn LinkedList(comptime T: type) type {
         }
 
         pub fn index(self: *Self, pos: usize) ListError!?T {
-            if (self.head == null) return error.EmptyList;
             if (pos > self.len - 1) return error.IndexOutOfBounds;
-
             if (self.head) |head| {
                 if (head.index(pos)) |node| {
                     return node.data;
@@ -85,7 +83,7 @@ pub fn LinkedList(comptime T: type) type {
                     return null;
                 }
             } else {
-                return null;
+                return error.EmptyList;
             }
         }
     };
