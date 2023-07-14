@@ -1,3 +1,1 @@
-```
-A basic linked list implementation in Zig...
-```
+Implementing random stuff and algorithms in Zig.
