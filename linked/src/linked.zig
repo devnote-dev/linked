@@ -86,6 +86,22 @@ pub fn LinkedList(comptime T: type) type {
                 return error.EmptyList;
             }
         }
+
+        pub fn pop(self: *Self) ListError!void {
+            if (self.head) |head| {
+                if (self.len == 1) {
+                    head.deinit(self.allocator);
+                    self.head = null;
+                } else {
+                    var node = head.index(self.len - 1).?;
+                    node.head.?.tail = null;
+                    node.deinit(self.allocator);
+                }
+                self.len -= 1;
+            } else {
+                return error.EmptyList;
+            }
+        }
     };
 }
 
@@ -98,8 +114,12 @@ test "linked list" {
     defer _ = gpa.deinit();
     var allocator = gpa.allocator();
 
-    var nums = try LinkedList(i32).init(&allocator, 2);
+    var nums = try LinkedList(i32).init(&allocator, 3);
     defer nums.deinit();
+
+    try nums.pop();
+    try expect(nums.len == 0);
+    try expect(nums.pop() == error.EmptyList);
 
     try nums.append(4);
     try nums.append(6);
