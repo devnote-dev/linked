@@ -25,6 +25,15 @@ fn Node(comptime T: type) type {
                 self.tail = node;
             }
         }
+
+        pub fn index(self: *Self, pos: usize) ?Self {
+            if (pos == 0) return self.*;
+            if (self.tail) |tail| {
+                return tail.index(pos - 1);
+            } else {
+                return null;
+            }
+        }
     };
 }
 
@@ -58,6 +67,18 @@ pub fn LinkedList(comptime T: type) type {
             }
 
             self.len += 1;
+        }
+
+        pub fn index(self: *Self, pos: usize) ?T {
+            if (self.head) |head| {
+                if (head.index(pos)) |node| {
+                    return node.data;
+                } else {
+                    return null;
+                }
+            } else {
+                return null;
+            }
         }
     };
 }
