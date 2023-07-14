@@ -36,7 +36,7 @@ pub fn LinkedList(comptime T: type) type {
         }
 
         pub fn deinit(self: *Self) void {
-            self.head.deinit(self.allocator);
+            if (self.head) |head| head.deinit(self.allocator);
         }
     };
 }
