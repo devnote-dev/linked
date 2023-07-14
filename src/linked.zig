@@ -17,6 +17,15 @@ fn Node(comptime T: type) type {
             if (self.tail) |tail| allocator.destroy(tail);
             allocator.destroy(self);
         }
+
+        pub fn append(self: *Self, node: *Self) void {
+            if (self.tail) |tail| {
+                tail.append(node);
+            } else {
+                node.head = self;
+                self.tail = node;
+            }
+        }
     };
 }
 
@@ -37,6 +46,19 @@ pub fn LinkedList(comptime T: type) type {
 
         pub fn deinit(self: *Self) void {
             if (self.head) |head| head.deinit(self.allocator);
+        }
+
+        pub fn append(self: *Self, data: T) !void {
+            var node = try self.allocator.create(Node(T));
+            node.* = Node(T).init(data);
+
+            if (self.head) |head| {
+                head.append(node);
+            } else {
+                self.head = node;
+            }
+
+            self.len += 1;
         }
     };
 }
