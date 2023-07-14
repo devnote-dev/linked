@@ -74,6 +74,20 @@ pub fn LinkedList(comptime T: type) type {
             self.len += 1;
         }
 
+        pub fn prepend(self: *Self, data: T) !void {
+            var node = try self.allocator.create(Node(T));
+            node.* = Node(T).init(data);
+
+            if (self.head) |head| {
+                self.head = node;
+                node.tail = head;
+            } else {
+                self.head = node;
+            }
+
+            self.len += 1;
+        }
+
         pub fn index(self: *Self, pos: usize) ListError!?T {
             if (pos > self.len - 1) return error.IndexOutOfBounds;
             if (self.head) |head| {
@@ -122,6 +136,7 @@ test "linked list" {
     try expect(nums.pop() == error.EmptyList);
 
     try nums.append(4);
+    try nums.prepend(2);
     try nums.append(6);
 
     try expect(nums.len == 3);
