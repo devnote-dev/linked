@@ -37,6 +37,11 @@ fn Node(comptime T: type) type {
     };
 }
 
+pub const ListError = error{
+    EmptyList,
+    IndexOutOfBounds,
+};
+
 pub fn LinkedList(comptime T: type) type {
     return struct {
         const Self = @This();
@@ -69,7 +74,10 @@ pub fn LinkedList(comptime T: type) type {
             self.len += 1;
         }
 
-        pub fn index(self: *Self, pos: usize) ?T {
+        pub fn index(self: *Self, pos: usize) ListError!?T {
+            if (self.head == null) return error.EmptyList;
+            if (pos > self.len - 1) return error.IndexOutOfBounds;
+
             if (self.head) |head| {
                 if (head.index(pos)) |node| {
                     return node.data;
