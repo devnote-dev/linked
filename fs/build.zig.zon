@@ -1,0 +1,10 @@
+.{
+    .name = "fs",
+    .version = "0.1.0",
+    .dependencies = .{
+        .@"zig-cli" = .{
+            .url = "https://github.com/sam701/zig-cli/archive/refs/tags/zig-0.10.tar.gz",
+            .hash = "12204747fca86f39f98caac9f38d94144cbf0d63b0aaf04e773cc30fcdcf39ef2558",
+        }
+    }
+}
