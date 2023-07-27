@@ -1,5 +1,5 @@
 .{
-    .name = "fs",
+    .name = "search",
     .version = "0.1.0",
     .dependencies = .{
         .@"zig-cli" = .{
