@@ -52,14 +52,12 @@ fn next_char(self: *Lexer) ?u8 {
 }
 
 fn read_argument(self: *Lexer) []const u8 {
-    const start = self.pos;
+    const start = self.pos - 1;
     while (self.next_char()) |char| {
-        switch (char) {
-            ' ' => break,
-            else => continue,
-        }
+        if (char == ' ') break;
+    } else {
+        return self.input[start..self.pos];
     }
-
     return self.input[start .. self.pos - 1];
 }
 
@@ -97,6 +95,6 @@ test "basic argument parsing" {
 
     try expect(results.len == 3);
     try expectEqualDeep(results[0], .{ .argument = "foo" });
-    // try expectEqualDeep(results[1], Result{ .argument = "bar" });
-    // try expectEqualDeep(results[2], Result{ .long_flag = "baz" });
+    try expectEqualDeep(results[1], .{ .argument = "bar" });
+    try expectEqualDeep(results[2], .{ .long_flag = "baz" });
 }
