@@ -1,3 +1,5 @@
-const std = @import("std");
+const Lexer = @import("./lexer.zig");
 
-pub fn parse(input: []const u8) void {}
+test {
+    @import("std").testing.refAllDecls(Lexer);
+}
