@@ -12,37 +12,40 @@ const Lexer = @This();
 allocator: std.mem.Allocator,
 input: []const u8,
 pos: usize,
-results: std.ArrayList(Result),
+results: ?[]Result,
 
 pub fn init(allocator: std.mem.Allocator, input: []const u8) Lexer {
     return .{
         .allocator = allocator,
         .input = input,
         .pos = 0,
-        .results = std.ArrayList(Result).init(allocator),
+        .results = null,
     };
 }
 
 pub fn deinit(self: *Lexer) void {
-    self.results.deinit();
+    if (self.results) |res| self.allocator.free(res);
 }
 
-pub fn read(self: *Lexer) ![]Result {
+pub fn read(self: *Lexer) !void {
+    var results = std.ArrayList(Result).init(self.allocator);
+    defer results.deinit();
+
     while (self.next_char()) |char| {
         switch (char) {
             ' ' => continue,
             '-' => if (self.next_char() == '-') {
                 _ = self.next_char();
-                try self.results.append(.{ .long_flag = self.read_argument() });
+                try results.append(.{ .long_flag = self.read_argument() });
             } else {
-                try self.results.append(.{ .short_flag = self.read_argument() });
+                try results.append(.{ .short_flag = self.read_argument() });
             },
-            '"' | '\'' => try self.results.append(.{ .string = self.read_string() }),
-            else => try self.results.append(.{ .argument = self.read_argument() }),
+            '"' | '\'' => try results.append(.{ .string = self.read_string() }),
+            else => try results.append(.{ .argument = self.read_argument() }),
         }
     }
 
-    return self.results.toOwnedSlice();
+    self.results = try results.toOwnedSlice();
 }
 
 fn next_char(self: *Lexer) ?u8 {
@@ -91,7 +94,8 @@ test "basic argument parsing" {
 
     var lexer = Lexer.init(allocator, "foo bar --baz");
     defer lexer.deinit();
-    const results = try lexer.read();
+    try lexer.read();
+    var results = lexer.results.?;
 
     try expect(results.len == 3);
     try expectEqualDeep(results[0], .{ .argument = "foo" });
