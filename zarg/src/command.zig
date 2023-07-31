@@ -18,7 +18,8 @@ pub const Option = struct {
 
 pub const Command = struct {
     name: []const u8,
-    commands: ?[]Command,
-    arguments: ?[]Argument,
-    options: ?[]Option,
+    commands: []const Command,
+    arguments: []const Argument,
+    options: []const Option,
+    action: *const fn (std.StringHashMap(Argument), std.StringHashMap(Option)) void,
 };
